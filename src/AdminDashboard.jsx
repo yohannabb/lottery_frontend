@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, X, Car, Clock, User, Phone, CreditCard, Edit3, Trash2 } from 'lucide-react';
+import { Plus, X, Car, Clock, User, Phone, CreditCard, Edit3, Trash2, Send, Image as ImageIcon } from 'lucide-react';
 
 export default function AdminDashboard({ 
   tickets = [], 
@@ -13,6 +13,11 @@ export default function AdminDashboard({
 }) {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [editingLottery, setEditingLottery] = useState(null);
+
+  // Broadcast state
+  const [broadcastText, setBroadcastText] = useState('');
+  const [broadcastImage, setBroadcastImage] = useState('');
+  const [isPosting, setIsPosting] = useState(false);
 
   const [formData, setFormData] = useState({
     title: '',
@@ -63,13 +68,43 @@ export default function AdminDashboard({
     }
   };
 
+  const handleSendBroadcast = async (e) => {
+    e.preventDefault();
+    if (!broadcastText.trim()) return;
+
+    setIsPosting(true);
+    try {
+      const res = await fetch(`${apiUrl}/api/admin/broadcast`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          message: broadcastText, 
+          imageUrl: broadcastImage 
+        })
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert(`✅ ${data.message}`);
+        setBroadcastText('');
+        setBroadcastImage('');
+      } else {
+        alert('❌ Failed to send broadcast');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('❌ Error sending broadcast');
+    } finally {
+      setIsPosting(false);
+    }
+  };
+
   return (
     <div className="p-4 max-w-4xl mx-auto text-white space-y-8">
       {/* Top Bar with Add Button */}
       <div className="flex justify-between items-center border-b border-gray-800 pb-4">
         <div>
           <h1 className="text-xl font-bold">Admin Management</h1>
-          <p className="text-xs text-gray-400">Manage active lotteries, pending orders, and payment receipts</p>
+          <p className="text-xs text-gray-400">Manage active lotteries, pending orders, and telegram broadcasts</p>
         </div>
         <button 
           onClick={handleOpenAddModal}
@@ -79,15 +114,60 @@ export default function AdminDashboard({
         </button>
       </div>
 
+      {/* SECTION 0: TELEGRAM BROADCAST POSTER */}
+      <div className="bg-[#121e14] border border-amber-500/30 rounded-2xl p-4 space-y-3">
+        <h3 className="text-sm font-bold text-amber-400 flex items-center gap-2">
+          <Send className="w-4 h-4" /> Post Broadcast to Telegram Subscribers
+        </h3>
+        <p className="text-xs text-gray-400">
+          Enter an optional image URL and your message. All bot subscribers will receive it instantly with a <b>"Buy Now (Open App)"</b> button.
+        </p>
+
+        <form onSubmit={handleSendBroadcast} className="space-y-3 pt-1">
+          <div>
+            <label className="text-xs font-semibold text-gray-300 flex items-center gap-1.5">
+              <ImageIcon className="w-3.5 h-3.5 text-amber-400" /> Image URL (Optional)
+            </label>
+            <input 
+              type="url" 
+              placeholder="https://example.com/car-banner.jpg"
+              value={broadcastImage}
+              onChange={(e) => setBroadcastImage(e.target.value)}
+              className="w-full mt-1 bg-[#0e1610] border border-gray-800 rounded-xl p-3 text-xs text-white focus:outline-none focus:border-amber-500"
+            />
+          </div>
+
+          <div>
+            <label className="text-xs font-semibold text-gray-300">Broadcast Text Content</label>
+            <textarea 
+              rows="3"
+              required
+              placeholder="🚨 New Car Lottery added! Select your lucky numbers now..."
+              value={broadcastText}
+              onChange={(e) => setBroadcastText(e.target.value)}
+              className="w-full mt-1 bg-[#0e1610] border border-gray-800 rounded-xl p-3 text-xs text-white focus:outline-none focus:border-amber-500"
+            />
+          </div>
+
+          <button 
+            type="submit"
+            disabled={isPosting}
+            className="w-full py-3 bg-amber-500 hover:bg-amber-400 text-black font-bold rounded-xl text-xs flex items-center justify-center gap-2 transition disabled:opacity-50"
+          >
+            <Send className="w-3.5 h-3.5" /> {isPosting ? 'Broadcasting...' : 'Post to Telegram Now'}
+          </button>
+        </form>
+      </div>
+
       {/* SECTION 1: ACTIVE CAR LOTTERIES LIST */}
       <div className="space-y-3">
         <h3 className="text-sm font-bold text-gray-300 flex items-center gap-2">
-          <Car className="w-4 h-4 text-amber-400" /> Active Car Lotteries ({lotteries.length})
+          <Car className="w-4 h-4 text-amber-400" /> Active Car Lotteries ({lotteries.length})[cite: 7]
         </h3>
 
         {lotteries.length === 0 ? (
           <p className="text-xs text-gray-500 py-6 text-center bg-[#121e14] rounded-2xl border border-gray-800">
-            No active car lotteries found. Click above to add one.
+            No active car lotteries found. Click above to add one.[cite: 7]
           </p>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -100,10 +180,10 @@ export default function AdminDashboard({
                     className="w-16 h-16 object-cover rounded-xl border border-gray-800 shrink-0" 
                   />
                   <div className="truncate">
-                    <h4 className="text-sm font-bold text-amber-400 truncate">{lottery.title}</h4>
+                    <h4 className="text-sm font-bold text-amber-400 truncate">{lottery.title}[cite: 7]</h4>
                     <p className="text-xs text-gray-400">Color: {lottery.color}</p>
                     <p className="text-xs text-gray-300 mt-1 font-semibold">
-                      {lottery.ticketPrice} Birr • {lottery.totalTickets} Tickets
+                      {lottery.ticketPrice} Birr • {lottery.totalTickets} Tickets[cite: 7]
                     </p>
                   </div>
                 </div>
@@ -113,7 +193,7 @@ export default function AdminDashboard({
                     onClick={() => handleOpenEditModal(lottery)}
                     className="bg-amber-500/10 border border-amber-500/40 text-amber-400 hover:bg-amber-500 hover:text-black p-2.5 rounded-xl text-xs flex items-center gap-1 font-bold transition"
                   >
-                    <Edit3 className="w-4 h-4" /> Edit
+                    <Edit3 className="w-4 h-4" /> Edit[cite: 7]
                   </button>
                   <button 
                     onClick={() => onDeleteLottery && onDeleteLottery(lottery._id)}
@@ -131,19 +211,19 @@ export default function AdminDashboard({
       {/* SECTION 2: PENDING ORDERS LIST */}
       <div className="space-y-3">
         <h3 className="text-sm font-bold text-gray-300">
-          Pending Orders ({tickets.filter(t => t.status === 'PENDING REVIEW').length})
+          Pending Orders ({tickets.filter(t => t.status === 'PENDING REVIEW').length})[cite: 7]
         </h3>
         
         {tickets.length === 0 ? (
           <p className="text-xs text-gray-500 py-6 text-center bg-[#121e14] rounded-2xl border border-gray-800">
-            No ticket submissions found.
+            No ticket submissions found.[cite: 7]
           </p>
         ) : (
           tickets.map((t) => (
             <div key={t._id || t.orderId} className="bg-[#121e14] border border-gray-800 rounded-2xl p-4 space-y-3">
               <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-2 border-b border-gray-800/60 pb-3">
                 <div className="flex items-center gap-2">
-                  <span className="text-sm font-bold text-amber-400">#{t.orderId}</span>
+                  <span className="text-sm font-bold text-amber-400">#{t.orderId}[cite: 7]</span>
                   <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full ${
                     t.status === 'APPROVED' ? 'bg-emerald-950 text-emerald-400 border border-emerald-800' :
                     t.status === 'REJECTED' ? 'bg-red-950 text-red-400 border border-red-800' :
@@ -153,7 +233,7 @@ export default function AdminDashboard({
                   </span>
                 </div>
                 <span className="text-[11px] text-gray-400">
-                  {new Date(t.createdAt).toLocaleString()}
+                  {new Date(t.createdAt).toLocaleString()}[cite: 7]
                 </span>
               </div>
 
@@ -162,24 +242,24 @@ export default function AdminDashboard({
                 <div className="space-y-1.5 bg-[#0e1610] p-3 rounded-xl border border-gray-800/60">
                   <p className="flex items-center gap-1.5 text-gray-300">
                     <User className="w-3.5 h-3.5 text-amber-400" /> 
-                    <span className="font-semibold">Full Name:</span> {t.fullName || 'N/A'}
+                    <span className="font-semibold">Full Name:</span> {t.fullName || 'N/A'}[cite: 7]
                   </p>
                   <p className="flex items-center gap-1.5 text-gray-300">
                     <Phone className="w-3.5 h-3.5 text-amber-400" /> 
-                    <span className="font-semibold">Phone Number:</span> {t.phoneNumber || 'N/A'}
+                    <span className="font-semibold">Phone Number:</span> {t.phoneNumber || 'N/A'}[cite: 7]
                   </p>
                   <p className="flex items-center gap-1.5 text-gray-300">
                     <CreditCard className="w-3.5 h-3.5 text-amber-400" /> 
-                    <span className="font-semibold">Sender Account:</span> <span className="font-mono text-white">{t.senderAccount || 'Not provided'}</span>
+                    <span className="font-semibold">Sender Account:</span> <span className="font-mono text-white">{t.senderAccount || 'Not provided'}[cite: 7]</span>
                   </p>
                 </div>
 
                 <div className="space-y-1.5 bg-[#0e1610] p-3 rounded-xl border border-gray-800/60">
                   <p className="text-gray-300">
-                    <span className="font-semibold">Tickets Count:</span> {t.ticketCount} ({t.totalPrice} Birr)
+                    <span className="font-semibold">Tickets Count:</span> {t.ticketCount} ({t.totalPrice} Birr)[cite: 7]
                   </p>
                   <p className="text-gray-300">
-                    <span className="font-semibold">Selected Numbers:</span> {t.selectedNumbers?.join(', ') || 'Random / Quick Pick'}
+                    <span className="font-semibold">Selected Numbers:</span> {t.selectedNumbers?.join(', ') || 'Random / Quick Pick'}[cite: 7]
                   </p>
                 </div>
               </div>
@@ -206,11 +286,11 @@ export default function AdminDashboard({
                       rel="noreferrer"
                       className="text-xs text-amber-400 hover:underline font-semibold"
                     >
-                      🔍 Click to view full receipt image
+                      🔍 Click to view full receipt image[cite: 7]
                     </a>
                   </div>
                 ) : (
-                  <span className="text-xs text-gray-500 italic">No receipt image uploaded</span>
+                  <span className="text-xs text-gray-500 italic">No receipt image uploaded[cite: 7]</span>
                 )}
 
                 <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
@@ -220,13 +300,13 @@ export default function AdminDashboard({
                         onClick={() => onApprove(t.orderId)}
                         className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl text-xs shadow-md transition"
                       >
-                        ✓ Approve
+                        ✓ Approve[cite: 7]
                       </button>
                       <button 
                         onClick={() => onReject(t.orderId)}
                         className="px-4 py-2 bg-red-600 hover:bg-red-500 text-white font-bold rounded-xl text-xs shadow-md transition"
                       >
-                        ✕ Reject
+                        ✕ Reject[cite: 7]
                       </button>
                     </>
                   )}
@@ -244,7 +324,7 @@ export default function AdminDashboard({
           <div className="bg-[#101811] border border-amber-500/40 rounded-3xl p-6 max-w-md w-full space-y-4 shadow-2xl">
             <div className="flex justify-between items-center border-b border-gray-800 pb-3">
               <h3 className="text-lg font-bold flex items-center gap-2 text-white">
-                <Car className="text-amber-400" /> {editingLottery ? 'Edit Car Lottery' : 'Add New Car Lottery'}
+                <Car className="text-amber-400" /> {editingLottery ? 'Edit Car Lottery' : 'Add New Car Lottery'}[cite: 7]
               </h3>
               <button 
                 onClick={() => { setIsAddModalOpen(false); setEditingLottery(null); }} 
@@ -316,7 +396,7 @@ export default function AdminDashboard({
 
               <div>
                 <label className="text-xs font-semibold text-gray-300 flex items-center gap-1">
-                  <Clock className="w-3.5 h-3.5 text-amber-400" /> Countdown Duration (Days)
+                  <Clock className="w-3.5 h-3.5 text-amber-400" /> Countdown Duration (Days)[cite: 7]
                 </label>
                 <input 
                   type="number" 
@@ -333,7 +413,7 @@ export default function AdminDashboard({
                 type="submit"
                 className="w-full py-3.5 bg-amber-500 text-black font-bold rounded-2xl mt-2 hover:bg-amber-400 text-sm transition"
               >
-                {editingLottery ? 'Update & Save Changes' : 'Save & Publish'}
+                {editingLottery ? 'Update & Save Changes' : 'Save & Publish'}[cite: 7]
               </button>
             </form>
           </div>

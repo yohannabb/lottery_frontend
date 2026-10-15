@@ -197,7 +197,7 @@ export default function App() {
 
   const handleAdminLogin = (e) => {
     e.preventDefault();
-    if (adminUsername === 'jo' && adminPassword === 'jo2237') {
+    if (adminUsername === 'admin' && adminPassword === 'gech2026') {
       setIsAdminLoggedIn(true);
       setShowLoginModal(false);
       setIsAdminView(true);

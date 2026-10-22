@@ -48,8 +48,8 @@ export default function App() {
 
   const fallbackLottery = {
     _id: '65e48f12a1b2c3d4e5f67890',
-    title: '6 Gech EV Makina Equb',
-    color: 'Black',
+    title: 'BYD Leopard 8',
+    color: 'Sky Blue',
     imageUrl: 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&q=80&w=800',
     ticketPrice: 6000,
     totalTickets: 4000,
@@ -230,6 +230,8 @@ export default function App() {
       .then(data => {
         if (data.success && data.lotteries.length > 0) {
           setLotteries(data.lotteries);
+        } else {
+          setLotteries([]);
         }
       })
       .catch(err => console.log('Using local fallback lottery data'));
@@ -247,6 +249,7 @@ export default function App() {
     }
   };
 
+  // 🚗 FIXED: Re-fetch fresh state & clear old tickets after posting new car
   const handleAddLottery = async (newCarData) => {
     try {
       const res = await fetch(`${API_URL}/api/lotteries`, {
@@ -257,7 +260,12 @@ export default function App() {
       const data = await res.json();
       if (data.success) {
         alert('✅ New Car Lottery published to database!');
+        setAllApprovedNumbers([]);
+        setAdminTickets([]);
+        setUserTickets([]);
+        setSelectedNumbers([]);
         fetchLotteries();
+        fetchGlobalTakenNumbers();
       }
     } catch (err) {
       console.error('Failed to create lottery:', err);

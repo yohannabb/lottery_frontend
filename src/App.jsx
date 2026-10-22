@@ -78,7 +78,7 @@ export default function App() {
     fetch(`${API_URL}/api/admin/tickets`)
       .then(res => res.json())
       .then(data => {
-        if (data.success && data.tickets) {
+        if (data.success && data.tickets && data.tickets.length > 0) {
           const approvedNums = [];
           data.tickets.forEach(t => {
             if (t.status === 'APPROVED' && t.selectedNumbers) {
@@ -90,7 +90,10 @@ export default function App() {
           setAllApprovedNumbers([]);
         }
       })
-      .catch(err => console.log('Error fetching global taken numbers'));
+      .catch(err => {
+        console.log('Error fetching global taken numbers');
+        setAllApprovedNumbers([]);
+      });
   };
 
   useEffect(() => {
@@ -255,7 +258,7 @@ export default function App() {
     }
   };
 
-  // 🚗 FULLY FIXED: Completely resets state and ticket arrays upon posting a new car
+  // 🚗 FULLY FIXED: Hard resets all local taken numbers & state arrays upon posting a new car
   const handleAddLottery = async (newCarData) => {
     try {
       const res = await fetch(`${API_URL}/api/lotteries`, {
@@ -271,8 +274,8 @@ export default function App() {
         setUserTickets([]);
         setSelectedNumbers([]);
         setTicketCount(1);
-        fetchLotteries();
-        fetchGlobalTakenNumbers();
+        await fetchLotteries();
+        await fetchGlobalTakenNumbers();
       }
     } catch (err) {
       console.error('Failed to create lottery:', err);

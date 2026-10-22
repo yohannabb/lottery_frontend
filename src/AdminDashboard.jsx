@@ -77,7 +77,9 @@ export default function AdminDashboard({
       }
       setEditingLottery(null);
     } else {
-      await onAddLottery(formData);
+      if (onAddLottery) {
+        await onAddLottery(formData);
+      }
       setIsAddModalOpen(false);
     }
   };

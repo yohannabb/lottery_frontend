@@ -86,6 +86,8 @@ export default function App() {
             }
           });
           setAllApprovedNumbers(approvedNums);
+        } else {
+          setAllApprovedNumbers([]);
         }
       })
       .catch(err => console.log('Error fetching global taken numbers'));
@@ -161,6 +163,8 @@ export default function App() {
             imageUrl: lotteryData.imageUrl
           }));
           setUserTickets(mappedTickets);
+        } else {
+          setUserTickets([]);
         }
       })
       .catch(err => console.log('Error fetching user tickets'));
@@ -243,13 +247,15 @@ export default function App() {
       const data = await res.json();
       if (data.success) {
         setAdminTickets(data.tickets);
+      } else {
+        setAdminTickets([]);
       }
     } catch (err) {
       console.error('Error fetching admin tickets:', err);
     }
   };
 
-  // 🚗 FIXED: Re-fetch fresh state & clear old tickets after posting new car
+  // 🚗 FULLY FIXED: Completely resets state and ticket arrays upon posting a new car
   const handleAddLottery = async (newCarData) => {
     try {
       const res = await fetch(`${API_URL}/api/lotteries`, {
@@ -259,11 +265,12 @@ export default function App() {
       });
       const data = await res.json();
       if (data.success) {
-        alert('✅ New Car Lottery published to database!');
+        alert('✅ New Car Lottery published with a clean slate!');
         setAllApprovedNumbers([]);
         setAdminTickets([]);
         setUserTickets([]);
         setSelectedNumbers([]);
+        setTicketCount(1);
         fetchLotteries();
         fetchGlobalTakenNumbers();
       }

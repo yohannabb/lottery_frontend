@@ -71,6 +71,8 @@ export default function AdminDashboard({
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log("Form submitted! onAddLottery prop exists?", !!onAddLottery);
+
     if (editingLottery) {
       if (onUpdateLottery) {
         await onUpdateLottery(editingLottery._id, formData);
@@ -79,6 +81,8 @@ export default function AdminDashboard({
     } else {
       if (onAddLottery) {
         await onAddLottery(formData);
+      } else {
+        console.error("❌ CRITICAL: onAddLottery prop is missing!");
       }
       setIsAddModalOpen(false);
     }

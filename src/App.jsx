@@ -258,7 +258,6 @@ export default function App() {
     }
   };
 
-  // 🚗 FULLY FIXED: Hard resets all local taken numbers & state arrays upon posting a new car
   const handleAddLottery = async (newCarData) => {
     try {
       const res = await fetch(`${API_URL}/api/lotteries`, {
@@ -428,6 +427,15 @@ export default function App() {
       }
     }
     setCheckoutStep(2);
+  };
+
+  // 🛡️ VALIDATION ADDED: Prevent progression if payment receipt is missing
+  const handlePaymentContinue = () => {
+    if (!receiptFile) {
+      alert('❌ Please upload the receipt before continuing!');
+      return;
+    }
+    setCheckoutStep(3);
   };
 
   const handleFinalSubmit = async () => {
@@ -1137,7 +1145,7 @@ export default function App() {
                       <div className="w-10 h-10 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400">
                         <Upload className="w-5 h-5" />
                       </div>
-                      <p className="text-xs font-bold text-white">Tap to upload your payment receipt</p>
+                      <p className="text-xs font-bold text-white">Tap to upload your payment receipt <span className="text-red-400">*</span></p>
                     </div>
                   )}
                 </div>
@@ -1161,8 +1169,8 @@ export default function App() {
                     Back
                   </button>
                   <button 
-                    onClick={() => setCheckoutStep(3)}
-                    className="py-3.5 bg-amber-500 hover:bg-amber-400 text-black font-bold rounded-2xl text-sm flex items-center justify-center gap-2"
+                    onClick={handlePaymentContinue}
+                    className="py-3.5 bg-amber-500 hover:bg-amber-400 text-black font-bold rounded-2xl text-sm flex items-center justify-center gap-2 cursor-pointer"
                   >
                     <span>Continue &gt;</span>
                   </button>
@@ -1253,7 +1261,7 @@ export default function App() {
         </div>
       )}
 
-      <nav className="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-[#0d130e]/95 backdrop-blur-md border-t border-gray-800 py-2.5 px-6 flex justify-around items-center z-20">
+      <nav className="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-[#0d130e]/95 backdrop-blur-md border-t border-gray-800 py-2.5 px-6 flex justify-around items-center z-25">
         <button 
           onClick={() => setCurrentScreen('home')} 
           className={`flex flex-col items-center gap-1 transition ${currentScreen === 'home' ? 'text-amber-400 font-semibold' : 'text-gray-400 hover:text-white'}`}

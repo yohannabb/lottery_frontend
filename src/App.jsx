@@ -66,7 +66,7 @@ export default function App() {
   const takenNumbers = Array.from(new Set([...lotteryTaken, ...allApprovedNumbers]));
 
   const bankAccounts = [
-    { name: 'Tele Birr', holder: 'Getachew Fikadu Jirata', account: '0999972486' },
+    { name: 'Tele Birr', holder: 'Getachew Fikadu Jirata', account: '0900835633' },
     { name: 'Commercial Bank of Ethiopia', holder: 'Getachew Fikadu Jirata', account: '1000804500573' },
     { name: 'BOA', holder: 'Getachew Fikadu Jirata', account: '269980524' },
     { name: 'Awash Bank', holder: 'Getachew Fikadu Jirata', account: '013201821568800' }

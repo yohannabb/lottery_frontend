@@ -67,7 +67,7 @@ export default function App() {
 
   const bankAccounts = [
     { name: 'Tele Birr', holder: 'Getachew Fikadu Jirata', account: '0900835633' },
-    { name: 'Commercial Bank of Ethiopia', holder: ' LEMI Teferi aychilum', account: '1000808221555' },
+    // { name: 'Commercial Bank of Ethiopia', holder: ' LEMI Teferi aychilum', account: '1000808221555' },
     { name: 'CBE', holder: 'Getachew Fikadu Jirata', account: '1000817808305' },
     { name: 'BOA', holder: 'Getachew Fikadu Jirata', account: '269980524' }
   ];
